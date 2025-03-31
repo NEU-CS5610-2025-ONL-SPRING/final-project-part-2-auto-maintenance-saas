@@ -1,0 +1,46 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+
+# Prisma files
+prisma/dev.db
+prisma/dev.db-journal
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.swp
+
+# Build artifacts
+dist/
+build/
+
+# Coverage reports
+coverage/
+
+# React-specific files
+client/node_modules/
+client/.cache/
+client/.env.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+
+# Testing files
+*.test.js
+*.spec.js
+jest.config.js
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+
+# Git-related files
+.gitignore~

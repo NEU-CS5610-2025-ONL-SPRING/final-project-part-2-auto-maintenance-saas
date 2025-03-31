@@ -1,0 +1,43 @@
+/* Global Styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Homepage Styles */
+.homepage {
+  text-align: center;
+  padding: 2rem;
+}
+
+.homepage-nav {
+  margin-top: 2rem;
+}
+
+.homepage-nav .btn {
+  display: inline-block;
+  margin: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.homepage-nav .btn:hover {
+  background-color: #0056b3;
+}
