@@ -1,19 +1,30 @@
 import express from "express";
 import { json } from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import authRouter from "./routes/auth.js";
-import pingRouter from "./routes/ping.js";
-import servicesRouter from "./routes/services.js"; // Add this import
-import { requireAuth } from "./middleware/auth.js"; // Add this import
+import servicesRouter from "./routes/services.js";
+import vehiclesRouter from "./routes/vehicles.js";
+import appointmentsRouter from "./routes/appointments.js";
+import { requireAuth } from "./middleware/auth.js";
 
 const app = express();
+
+// Middleware
 app.use(json());
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 // Routes
-app.use("/auth", authRouter);
-app.use("/services", requireAuth, servicesRouter);
-app.use("/ping", pingRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/services", servicesRouter);
+app.use("/api/vehicles", vehiclesRouter);
+app.use("/api/appointments", appointmentsRouter);
 
 // Error handling
 app.use((err, req, res, next) => {
@@ -21,7 +32,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
