@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -10,18 +11,28 @@ import {
   Grid,
   CircularProgress,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import BuildIcon from "@mui/icons-material/Build";
+import { API_ENDPOINTS } from "../config";
+import { useAuth } from "../context/AuthContext";
 
 export default function ServicesList() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedService, setSelectedService] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await fetch("/api/services");
+        const res = await fetch(API_ENDPOINTS.SERVICES.LIST);
         if (!res.ok) throw new Error("Failed to fetch services");
         const data = await res.json();
         setServices(data);
@@ -32,6 +43,26 @@ export default function ServicesList() {
     };
     fetchServices();
   }, []);
+
+  const handleLearnMore = (service) => {
+    setSelectedService(service);
+    setOpenDialog(true);
+  };
+
+  const handleSchedule = (service) => {
+    if (!user) {
+      navigate("/login", {
+        state: { from: "/book-appointment", serviceId: service.id },
+      });
+    } else {
+      navigate("/book-appointment", { state: { serviceId: service.id } });
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedService(null);
+  };
 
   return (
     <Container maxWidth="lg">
@@ -74,10 +105,18 @@ export default function ServicesList() {
                     </Typography>
                   </CardContent>
                   <CardActions>
-                    <Button size="small" color="primary">
+                    <Button
+                      size="small"
+                      color="primary"
+                      onClick={() => handleLearnMore(service)}
+                    >
                       Learn More
                     </Button>
-                    <Button size="small" color="primary">
+                    <Button
+                      size="small"
+                      color="primary"
+                      onClick={() => handleSchedule(service)}
+                    >
                       Schedule
                     </Button>
                   </CardActions>
@@ -86,6 +125,34 @@ export default function ServicesList() {
             ))}
           </Grid>
         )}
+
+        {/* Service Details Dialog */}
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>{selectedService?.name}</DialogTitle>
+          <DialogContent>
+            <Typography variant="h6" color="primary" gutterBottom>
+              ${selectedService?.price}
+            </Typography>
+            <Typography color="text.secondary" paragraph>
+              Duration: {selectedService?.duration} minutes
+            </Typography>
+            <Typography paragraph>
+              {selectedService?.description || "No description available."}
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>Close</Button>
+            <Button
+              onClick={() => {
+                handleCloseDialog();
+                handleSchedule(selectedService);
+              }}
+              color="primary"
+            >
+              Schedule Service
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Container>
   );

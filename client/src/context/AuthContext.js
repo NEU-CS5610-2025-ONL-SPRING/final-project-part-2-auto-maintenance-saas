@@ -20,9 +20,12 @@ export const AuthProvider = ({ children }) => {
         if (response.ok) {
           const data = await response.json();
           setUser(data);
+        } else {
+          setUser(null);
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -32,23 +35,28 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
-    const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-      credentials: "include",
-    });
+    try {
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+        credentials: "include",
+      });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Login failed");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Login failed");
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      return data.user;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
     }
-
-    const data = await response.json();
-    setUser(data);
-    return data;
   };
 
   const register = async (userData) => {

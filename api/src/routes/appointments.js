@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
+import { authenticateToken } from "../middleware/auth.js";
+import prisma from "../utils/db.js";
+
 const router = express.Router();
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const authenticateToken = require("../middleware/auth");
 
 // Get all appointments for the authenticated user
 router.get("/", authenticateToken, async (req, res) => {
@@ -225,4 +225,4 @@ router.get("/time-slots", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

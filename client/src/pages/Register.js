@@ -71,10 +71,18 @@ export default function Register() {
         }),
       });
 
-      await handleApiError(response);
-      navigate("/login");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Registration failed");
+      }
+
+      const userData = await response.json();
+      // Navigate to login page with success message
+      navigate("/login", {
+        state: { message: "Registration successful! Please login." },
+      });
     } catch (err) {
-      displayError(err, setError);
+      setError(err.message || "Registration failed. Please try again.");
     }
   };
 

@@ -23,3 +23,6 @@ export const requireAuth = async (req, res, next) => {
     res.status(401).json({ error: "Invalid or expired token" });
   }
 };
+
+// Export the same function with a different name for compatibility
+export const authenticateToken = requireAuth;

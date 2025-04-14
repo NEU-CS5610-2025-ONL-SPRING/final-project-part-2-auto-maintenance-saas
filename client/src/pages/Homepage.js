@@ -33,39 +33,18 @@ export default function Homepage() {
           <Typography variant="h6" color="text.secondary" paragraph>
             Your one-stop solution for car maintenance scheduling and services.
           </Typography>
-          <Grid container spacing={2} justifyContent="center" sx={{ mt: 4 }}>
-            <Grid item>
-              <Button
-                component={Link}
-                to="/login"
-                variant="contained"
-                size="large"
-              >
-                Login
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                component={Link}
-                to="/register"
-                variant="outlined"
-                size="large"
-              >
-                Register
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                component={Link}
-                to="/services"
-                variant="contained"
-                color="secondary"
-                size="large"
-              >
-                View Services
-              </Button>
-            </Grid>
-          </Grid>
+          <Box sx={{ mt: 4 }}>
+            <Button
+              component={Link}
+              to="/services"
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ minWidth: 200 }}
+            >
+              View Services
+            </Button>
+          </Box>
         </Paper>
       </Box>
     </Container>

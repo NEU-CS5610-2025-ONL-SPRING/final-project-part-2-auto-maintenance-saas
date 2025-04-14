@@ -42,11 +42,18 @@ export default function BookAppointment() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-  const [carModel, setCarModel] = useState("");
+  const [makes, setMakes] = useState([]);
+  const [models, setModels] = useState([]);
+  const [selectedMake, setSelectedMake] = useState("");
+  const [selectedModel, setSelectedModel] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingTimeSlots, setLoadingTimeSlots] = useState(false);
+  const [loadingMakes, setLoadingMakes] = useState(false);
+  const [loadingModels, setLoadingModels] = useState(false);
   const [error, setError] = useState("");
   const [totalCost, setTotalCost] = useState(0);
+  const [selectedYear, setSelectedYear] = useState("");
+  const [years, setYears] = useState([]);
 
   // Fetch services on component mount
   useEffect(() => {
@@ -65,6 +72,49 @@ export default function BookAppointment() {
 
     fetchServices();
   }, []);
+
+  // Fetch car makes on component mount
+  useEffect(() => {
+    const fetchMakes = async () => {
+      try {
+        setLoadingMakes(true);
+        const response = await fetch(API_ENDPOINTS.VEHICLES.COMMON_MAKES);
+        const data = await handleApiError(response);
+        setMakes(data);
+      } catch (err) {
+        displayError(err, setError);
+      } finally {
+        setLoadingMakes(false);
+      }
+    };
+
+    fetchMakes();
+  }, []);
+
+  // Fetch models when make is selected
+  useEffect(() => {
+    if (!selectedMake) {
+      setModels([]);
+      return;
+    }
+
+    const fetchModels = async () => {
+      try {
+        setLoadingModels(true);
+        const response = await fetch(
+          API_ENDPOINTS.VEHICLES.COMMON_MODELS(selectedMake)
+        );
+        const data = await handleApiError(response);
+        setModels(data);
+      } catch (err) {
+        displayError(err, setError);
+      } finally {
+        setLoadingModels(false);
+      }
+    };
+
+    fetchModels();
+  }, [selectedMake]);
 
   // Update selected service when selectedServiceId changes
   useEffect(() => {
@@ -106,6 +156,16 @@ export default function BookAppointment() {
     fetchTimeSlots();
   }, [selectedServiceId, selectedDate]);
 
+  // Add year range generation on component mount
+  useEffect(() => {
+    const currentYear = new Date().getFullYear();
+    const yearRange = Array.from(
+      { length: currentYear - 2000 + 2 }, // +2 to include current year and next year
+      (_, i) => (currentYear + 1 - i).toString()
+    );
+    setYears(yearRange);
+  }, []);
+
   const handleServiceChange = (event) => {
     setSelectedServiceId(event.target.value);
     setSelectedTimeSlot("");
@@ -120,8 +180,17 @@ export default function BookAppointment() {
     setSelectedTimeSlot(event.target.value);
   };
 
-  const handleCarModelChange = (event) => {
-    setCarModel(event.target.value);
+  const handleMakeChange = (event) => {
+    setSelectedMake(event.target.value);
+    setSelectedModel("");
+  };
+
+  const handleModelChange = (event) => {
+    setSelectedModel(event.target.value);
+  };
+
+  const handleYearChange = (event) => {
+    setSelectedYear(event.target.value);
   };
 
   const handleNext = () => {
@@ -139,7 +208,7 @@ export default function BookAppointment() {
       case 1:
         return !!selectedDate && !!selectedTimeSlot;
       case 2:
-        return !!carModel;
+        return !!selectedMake && !!selectedModel && !!selectedYear;
       default:
         return true;
     }
@@ -163,7 +232,7 @@ export default function BookAppointment() {
         body: JSON.stringify({
           serviceId: selectedServiceId,
           date: selectedTimeSlot,
-          carModel,
+          carModel: `${selectedYear} ${selectedMake} ${selectedModel}`,
         }),
         credentials: "include",
       });
@@ -223,11 +292,17 @@ export default function BookAppointment() {
                   onChange={handleServiceChange}
                   disabled={loading}
                 >
-                  {services.map((service) => (
-                    <MenuItem key={service.id} value={service.id}>
-                      {service.name} - ${service.price}
+                  {loading ? (
+                    <MenuItem value="">
+                      <CircularProgress size={20} />
                     </MenuItem>
-                  ))}
+                  ) : (
+                    services.map((service) => (
+                      <MenuItem key={service.id} value={service.id}>
+                        {service.name} - ${service.price}
+                      </MenuItem>
+                    ))
+                  )}
                 </Select>
               </FormControl>
 
@@ -308,64 +383,97 @@ export default function BookAppointment() {
               <Typography variant="h6" gutterBottom>
                 Vehicle Information
               </Typography>
-              <TextField
-                fullWidth
-                label="Car Make and Model"
-                variant="outlined"
-                value={carModel}
-                onChange={handleCarModelChange}
-                placeholder="e.g., Honda Civic 2020"
-                sx={{ mb: 3 }}
-              />
+              <FormControl fullWidth sx={{ mb: 3 }}>
+                <InputLabel id="year-select-label">Year</InputLabel>
+                <Select
+                  labelId="year-select-label"
+                  id="year-select"
+                  value={selectedYear}
+                  label="Year"
+                  onChange={handleYearChange}
+                >
+                  {years.map((year) => (
+                    <MenuItem key={year} value={year}>
+                      {year}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth sx={{ mb: 3 }}>
+                <InputLabel id="make-select-label">Car Make</InputLabel>
+                <Select
+                  labelId="make-select-label"
+                  id="make-select"
+                  value={selectedMake}
+                  label="Car Make"
+                  onChange={handleMakeChange}
+                  disabled={loadingMakes}
+                >
+                  {loadingMakes ? (
+                    <MenuItem value="">
+                      <CircularProgress size={20} />
+                    </MenuItem>
+                  ) : (
+                    makes.map((make) => (
+                      <MenuItem key={make.Make_ID} value={make.Make_Name}>
+                        {make.Make_Name}
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth sx={{ mb: 3 }}>
+                <InputLabel id="model-select-label">Car Model</InputLabel>
+                <Select
+                  labelId="model-select-label"
+                  id="model-select"
+                  value={selectedModel}
+                  label="Car Model"
+                  onChange={handleModelChange}
+                  disabled={!selectedMake || loadingModels}
+                >
+                  {loadingModels ? (
+                    <MenuItem value="">
+                      <CircularProgress size={20} />
+                    </MenuItem>
+                  ) : (
+                    models.map((model) => (
+                      <MenuItem key={model.Model_ID} value={model.Model_Name}>
+                        {model.Model_Name}
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+              </FormControl>
             </Box>
           )}
 
           {activeStep === 3 && (
             <Box>
               <Typography variant="h6" gutterBottom>
-                Appointment Summary
+                Confirmation
               </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1" fontWeight="bold">
-                    Service:
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    {selectedService?.name}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1" fontWeight="bold">
-                    Date & Time:
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    {selectedDate && selectedTimeSlot
-                      ? format(new Date(selectedTimeSlot), "PPpp")
-                      : "Not selected"}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1" fontWeight="bold">
-                    Vehicle:
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    {carModel}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1" fontWeight="bold">
-                    Duration:
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    {selectedService?.duration} minutes
-                  </Typography>
-                </Grid>
-              </Grid>
-
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="h6" color="primary" align="right">
-                Total Cost: ${totalCost.toFixed(2)}
+              <Typography variant="body1" paragraph>
+                Please review your appointment details:
+              </Typography>
+              <Typography variant="body1">
+                Service: {selectedService?.name}
+              </Typography>
+              <Typography variant="body1">
+                Date: {selectedDate && format(selectedDate, "MMMM do, yyyy")}
+              </Typography>
+              <Typography variant="body1">
+                Time:{" "}
+                {selectedTimeSlot &&
+                  format(new Date(selectedTimeSlot), "h:mm a")}
+              </Typography>
+              <Typography variant="body1">
+                Vehicle: {selectedYear} {selectedMake} {selectedModel}
+              </Typography>
+              <Typography variant="body1" sx={{ mt: 2, fontWeight: "bold" }}>
+                Total Cost: ${totalCost}
               </Typography>
             </Box>
           )}

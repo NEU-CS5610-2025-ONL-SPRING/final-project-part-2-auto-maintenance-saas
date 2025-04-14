@@ -17,9 +17,9 @@ router.get("/", async (req, res) => {
 // POST new service (authenticated)
 router.post("/", requireAuth, async (req, res) => {
   try {
-    const { name, price, duration } = req.body;
+    const { name, price, duration, description } = req.body;
     const newService = await prisma.service.create({
-      data: { name, price, duration },
+      data: { name, price, duration, description },
     });
     res.status(201).json(newService);
   } catch (error) {

@@ -14,6 +14,9 @@ export const API_ENDPOINTS = {
     MAKES: `${API_BASE_URL}/api/vehicles/makes`,
     MODELS: (make) => `${API_BASE_URL}/api/vehicles/models/${make}`,
     VIN: (vin) => `${API_BASE_URL}/api/vehicles/vin/${vin}`,
+    COMMON_MAKES: `${API_BASE_URL}/api/vehicles/common-makes`,
+    COMMON_MODELS: (make) =>
+      `${API_BASE_URL}/api/vehicles/common-models/${make}`,
   },
   APPOINTMENTS: {
     LIST: `${API_BASE_URL}/api/appointments`,

@@ -11,6 +11,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 router.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already registered" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
@@ -21,33 +28,56 @@ router.post("/register", async (req, res) => {
       },
     });
 
-    res.status(201).json({ id: user.id, email: user.email });
+    // Return user data without password
+    const userData = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    res.status(201).json(userData);
   } catch (error) {
+    console.error("Registration error:", error);
     res.status(400).json({ error: "Registration failed" });
   }
 });
 
 // Login
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ error: "Invalid credentials" });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    // Return user data without password
+    const userData = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      })
+      .json({
+        message: "Login successful",
+        user: userData,
+      });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Login failed" });
   }
-
-  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, {
-    expiresIn: "1h",
-  });
-
-  res
-    .cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    })
-    .json({ message: "Login successful" });
 });
 
 // Logout

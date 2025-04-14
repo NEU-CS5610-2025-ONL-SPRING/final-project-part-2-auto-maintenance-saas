@@ -16,6 +16,8 @@ import {
   CircularProgress,
   Alert,
   Paper,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import SearchIcon from "@mui/icons-material/Search";
@@ -33,13 +35,18 @@ export default function VehicleSearch() {
   const [loading, setLoading] = useState(false);
   const [loadingMakes, setLoadingMakes] = useState(true);
   const [loadingModels, setLoadingModels] = useState(false);
+  const [showAllMakes, setShowAllMakes] = useState(false);
 
-  // Fetch car makes on component mount
+  // Fetch car makes on component mount or when showAllMakes changes
   useEffect(() => {
     const fetchMakes = async () => {
       try {
         setLoadingMakes(true);
-        const response = await fetch(API_ENDPOINTS.VEHICLES.MAKES);
+        const endpoint = showAllMakes
+          ? API_ENDPOINTS.VEHICLES.MAKES
+          : API_ENDPOINTS.VEHICLES.COMMON_MAKES;
+
+        const response = await fetch(endpoint);
         const data = await handleApiError(response);
         setMakes(data);
       } catch (err) {
@@ -50,7 +57,7 @@ export default function VehicleSearch() {
     };
 
     fetchMakes();
-  }, []);
+  }, [showAllMakes]);
 
   // Fetch models when a make is selected
   useEffect(() => {
@@ -62,9 +69,11 @@ export default function VehicleSearch() {
     const fetchModels = async () => {
       try {
         setLoadingModels(true);
-        const response = await fetch(
-          API_ENDPOINTS.VEHICLES.MODELS(selectedMake)
-        );
+        const endpoint = showAllMakes
+          ? API_ENDPOINTS.VEHICLES.MODELS(selectedMake)
+          : API_ENDPOINTS.VEHICLES.COMMON_MODELS(selectedMake);
+
+        const response = await fetch(endpoint);
         const data = await handleApiError(response);
         setModels(data);
       } catch (err) {
@@ -75,7 +84,7 @@ export default function VehicleSearch() {
     };
 
     fetchModels();
-  }, [selectedMake]);
+  }, [selectedMake, showAllMakes]);
 
   const handleMakeChange = (event) => {
     setSelectedMake(event.target.value);
@@ -90,6 +99,13 @@ export default function VehicleSearch() {
 
   const handleVinChange = (event) => {
     setVin(event.target.value);
+  };
+
+  const handleShowAllMakesChange = (event) => {
+    setShowAllMakes(event.target.checked);
+    setSelectedMake("");
+    setSelectedModel("");
+    setVehicleDetails(null);
   };
 
   const searchByVin = async () => {
@@ -133,6 +149,20 @@ export default function VehicleSearch() {
               <Typography variant="h6" gutterBottom>
                 Search by Make and Model
               </Typography>
+
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showAllMakes}
+                    onChange={handleShowAllMakesChange}
+                    name="showAllMakes"
+                    color="primary"
+                  />
+                }
+                label="Show all makes (including uncommon)"
+                sx={{ mb: 2 }}
+              />
+
               <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel id="make-select-label">Make</InputLabel>
                 <Select
