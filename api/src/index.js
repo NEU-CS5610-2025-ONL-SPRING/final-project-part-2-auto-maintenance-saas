@@ -20,6 +20,11 @@ app.use(
   })
 );
 
+// Health check endpoint for Render
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // Routes
 app.use("/api/auth", authRouter);
 app.use("/api/services", servicesRouter);
