@@ -36,16 +36,9 @@ cd ../client && npm start
 
 ## Deployment
 
-- Frontend: Vercel (https://auto-maintenance-client.vercel.app)
-- Backend: Render (https://final-project-part-2-auto-maintenance.onrender.com)
-- Database: PostgreSQL on Render
+- https://final-project-part-2-auto-maintenance.onrender.com
 
 See [RENDER_DEPLOY.md](RENDER_DEPLOY.md) for deployment details.
-
-## Access
-
-- **Admin**: admin@example.com / password123
-- **User**: user@example.com / password123
 
 ## License
 

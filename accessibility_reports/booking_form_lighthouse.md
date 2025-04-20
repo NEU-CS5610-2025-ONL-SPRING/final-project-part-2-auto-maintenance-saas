@@ -1,35 +1,23 @@
-# Booking Form Lighthouse Report
+# Booking Form Accessibility
 
-**Page:** Appointment Booking
-**URL:** https://auto-maintenance-client.vercel.app/book-appointment
-**Date:** 04/19/2025
+**Score: 73/100** ⚠️ | **Date: 4/19/2025**
 
-## Performance Metrics
+## Issues
 
-- First Contentful Paint: 1.2s
-- Time to Interactive: 3.8s
-- Speed Index: 2.1s
-
-## Accessibility Score: 73/100 ⚠️
-
-### Issues Found:
-
-1. Form inputs missing labels (3 fields)
+1. Missing form labels
 2. Date picker not keyboard accessible
-3. Low contrast on form helper text (2.8:1)
-4. No error suggestions for form validation
-5. ARIA attributes misused on custom dropdown
+3. Low contrast text (2.8:1)
+4. Missing error suggestions
+5. Incorrect ARIA usage
 
-### Passing Checks:
+## Passes
 
-- Page uses headings and landmarks
-- Most interactive controls are keyboard accessible
-- Page has sufficient text spacing
-- No keyboard traps detected
+- Proper headings/landmarks
+- No keyboard traps
+- Adequate text spacing
 
-## Suggested Fixes
+## Action Needed
 
-- Add proper labels to all form inputs
-- Fix date picker keyboard navigation
-- Increase contrast of helper text to 4.5:1
-- Implement proper error handling with suggestions
+- Add missing labels
+- Fix keyboard navigation
+- Increase contrast to 4.5:1

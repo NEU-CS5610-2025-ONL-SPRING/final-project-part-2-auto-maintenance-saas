@@ -1,32 +1,21 @@
-# Home Page Lighthouse Report
+# Home Page Accessibility
 
-Date: 4/20/2025
-URL: https://auto-maintenance-client.vercel.app/
+**Score: 91/100** | **Date: 4/20/2025**
 
-## Scores
+## Passing
 
-- Performance: 82
-- Accessibility: 91
-- Best Practices: 87
-- SEO: 94
+- Proper heading structure
+- Alt text on images
+- ARIA attributes
 
-## Accessibility Findings
+## Issues
 
-### Passing:
+- Missing button labels
+- Low contrast on service cards (3.2:1)
+- Form elements without labels
 
-- ✅ Page has proper heading structure
-- ✅ Images have alt text
-- ✅ Sufficient color contrast on most elements
-- ✅ Proper ARIA attributes
+## Fixes
 
-### Issues:
-
-- ❌ Some button elements missing accessible names
-- ❌ Background and foreground colors do not have sufficient contrast ratio (3.2:1) on service cards
-- ❌ Form elements don't have associated labels
-
-## Quick Fixes:
-
-1. Add aria-label to icon buttons
-2. Increase contrast on service card prices
-3. Add proper labels to search form
+1. Add aria-label to buttons
+2. Increase service card contrast
+3. Add form labels
